@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14532d"><meta name="mobile-web-app-capable" content="yes">
+<title>Aata Addu</title>
+<style>
+:root{--bg:#14532d;--felt:#0f3f22;--ink:#f6f1e3;--card:#fffdf6;--cink:#1b1b1b;--red:#c62828;--gold:#ffc83d;--mut:#a9c4b2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c2c1a;--felt:#081f12}}
+:root[data-theme="dark"]{--bg:#0c2c1a;--felt:#081f12}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+#top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--felt);font-size:14px}
+#mb{font-size:20px;background:none;color:var(--ink);padding:0 10px 0 0;min-width:0}#top b{font-size:17px}
+.sc{text-align:right;line-height:1.3}
+#trump{font-size:22px;color:var(--gold)}
+#table{flex:1;display:flex;flex-direction:column;padding:6px;min-height:0;gap:6px}
+#seats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.seat{min-width:62px;padding:5px 8px;border-radius:8px;background:var(--felt);font-size:12px;color:var(--mut);text-align:center;border-top:3px solid #7fc8ff}
+.seat.tm{border-top-color:var(--gold)}
+.seat.on{outline:2px solid var(--gold);color:var(--gold)}
+.seat b{color:var(--ink);font-weight:normal}
+.seat.tm b{color:var(--gold)}.seat.op b{color:#7fc8ff}.cT{color:var(--gold)}.cO{color:#7fc8ff}.tc span{border-bottom:3px solid currentColor;padding:0 2px}#hand{border-top:3px solid var(--gold)}
+.seat .bk{display:flex;justify-content:center;margin-top:4px;min-height:14px}
+.seat .bk i{width:9px;height:14px;background:#3b6e52;border:1px solid #9fc4ae;border-radius:2px;margin-left:-5px}
+#tr{flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center}
+.tc{display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--mut);gap:2px}
+.card{width:50px;height:72px;background:var(--card);color:var(--cink);border-radius:7px;border:2px solid #d8d2c0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;line-height:1.05;flex:none;user-select:none}
+.card b{font-size:21px}.card i{font-style:normal;font-size:22px}
+.card.red{color:var(--red)}.card.t{border-color:var(--gold)}
+.card.mini{width:44px;height:62px}
+.win{box-shadow:0 0 0 3px var(--gold)}
+#msg{text-align:center;padding:6px 12px;font-size:14px;min-height:20px;color:var(--gold)}
+#hand{display:flex;justify-content:center;padding:8px 10px 14px;min-height:92px}
+#hand .card{margin-left:-14px;transition:transform .12s}
+#hand .card:first-child{margin-left:0}
+#hand .card.ok{transform:translateY(-10px);cursor:pointer}
+#hand .card.no{opacity:.4}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:5;padding:20px}
+#ov input{font:inherit;font-size:16px;padding:9px;border-radius:8px;border:0;width:100%;box-sizing:border-box;margin:4px 0;text-align:center}#ov>div{background:var(--felt);border:2px solid var(--gold);border-radius:14px;padding:20px;max-width:340px;width:100%;text-align:center}
+#ov.pick{background:transparent;align-items:flex-start;padding-top:calc(env(safe-area-inset-top,0px) + 120px);pointer-events:none}
+#ov.pick>div{pointer-events:auto}
+.row{display:flex;gap:10px;justify-content:center;margin-top:14px}
+button{font:inherit;font-size:26px;background:var(--card);color:var(--cink);border:0;border-radius:10px;padding:8px 16px;min-width:56px}
+button.r{color:var(--red)}button.go{font-size:17px;background:var(--gold);padding:10px 22px}
+.sl{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:15px;text-align:left}.sl button{font-size:14px;padding:6px 12px;min-width:0}h2{margin:0 0 8px;font-size:21px}p{margin:6px 0;font-size:15px}
+</style></head><body><div id="app">
+<div id="top"><div style="display:flex;align-items:center"><button id="mb">☰</button><div><b>Aata Addu</b><div id="team" style="font-size:12px;color:var(--mut)"></div></div></div><div>Aata <span id="trump">–</span></div><div class="sc" id="sc"></div></div>
+<div id="table"><div id="seats"></div><div id="tr"></div></div>
+<div id="msg"></div><div id="hand"></div></div>
+<div id="ov"><div id="ovc"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const S=['♠','♥','♦','♣'];
+const AO=['6','7','8','10','Q','K','A','9','J'],NO=['6','7','8','9','10','J','Q','K','A'];
+const PA={J:20,9:14,A:11,K:3,Q:2,10:10},PO={A:11,K:3,Q:2,J:1,10:10};
+const $=id=>document.getElementById(id),blank=n=>Array.from({length:n},()=>[]);
+const INIT=(n=4)=>({v:0,n,phase:'lobby',seats:Array(n).fill(null),names:{},hands:blank(n),rest:blank(n),trick:[],turn:0,decl:0,trump:-1,first:0,dturn:0,passes:0,noAata:false,score:[0,0],tw:[0,0],owed:0,mult:1,cturn:0,cn:0,played:0,target:5,dealer:0,msg:'',result:null});
+let G=INIT(),pn=4,uid='',mode=null,code='',peer=null,conn=null,conns={},timer=null,showSeats=true,err='';
+const isT=c=>c.s===G.trump,pts=c=>(isT(c)?PA:PO)[c.r]||0,rk=c=>isT(c)?100+AO.indexOf(c.r):NO.indexOf(c.r);
+const eq=(a,b)=>a.s===b.s&&a.r===b.r,clone=o=>JSON.parse(JSON.stringify(o));
+const tname=(t,v)=>{const hs=[];let bots=0;G.seats.forEach((u,i)=>{if(i%2===t){if(u===null)bots++;else hs.push(G.names[u]||'Player '+(i+1))}});
+ const mine=G.seats.indexOf(uid)>=0&&t===v;
+ if(!hs.length)return bots?'Bot team':'Team '+(t?'B':'A');
+ return hs.join(' & ')+(bots?(mine?' & my bots':' & their bots'):"'s team")};
+const tn=(t,v)=>'<span class="'+(t===v?'cT':'cO')+'">'+tname(t,v)+'</span>';
+const clean=x=>String(x||'').replace(/[<>&"'`]/g,'').slice(0,14);
+const nm0=p=>G.seats[p]===null?'Bot':(G.names[G.seats[p]]||'Player '+(p+1)),nm=p=>G.seats[p]===uid?'You':nm0(p);
+function legal(h,t){if(!t.length)return h;const led=t[0].c.s;
+ if(led===G.trump){const x=h.filter(isT);return x.length?x:h}
+ const x=h.filter(c=>c.s===led);return x.length?x.concat(h.filter(isT)):h}
+function best(t){const led=t[0].c.s,v=c=>isT(c)?200+AO.indexOf(c.r):c.s===led?NO.indexOf(c.r):-1;
+ return t.reduce((a,b)=>v(b.c)>v(a.c)?b:a)}
+const low=a=>a.slice().sort((x,y)=>(pts(x)-pts(y))||(isT(x)-isT(y))||(rk(x)-rk(y)))[0];
+function ai(p){
+ const L=legal(G.hands[p],G.trick),mine=p%2===G.decl%2,t=G.trick;
+ if(!t.length){const nt=L.filter(c=>!isT(c)),tt=L.filter(isT);
+  if(mine){if(tt.length&&Math.random()<.75)return tt.sort((a,b)=>rk(b)-rk(a))[0];
+   if(nt.length)return nt.sort((a,b)=>rk(b)-rk(a))[0]}
+  else{const g=nt.filter(c=>c.r==='A').concat(nt.filter(c=>c.r==='10'));if(g.length)return g[0]}
+  return low(nt.length?nt:L)}
+ if(best(t).p%2===p%2){const nt=L.filter(c=>!isT(c)||c.s===t[0].c.s);
+  return (nt.length?nt:L).slice().sort((a,b)=>(pts(b)-pts(a))||(rk(a)-rk(b)))[0]}
+ const win=L.filter(c=>best(t.concat([{p,c}])).p===p);
+ if(win.length)return win.sort((a,b)=>(isT(a)-isT(b))||(rk(a)-rk(b)))[0];
+ return low(L)}
+function botVal(h,t){let v=0;h.forEach(c=>{if(c.s===t)v+=(PA[c.r]||0)+4});return v}
+function botPick(h){let bs=0,bv=-1;S.forEach((_,s)=>{const v=botVal(h,s);if(v>bv){bv=v;bs=s}});return bs}
+/* game rules (host only) */
+const stakeOf=(s,p)=>{const rel=(p-s.dealer+s.n)%s.n;return s.n-Math.min(rel,s.n-rel)};
+function startPlay(s){s.phase='play';s.turn=(s.dealer+1)%s.n}
+function fin(s,t){s.trump=t;s.noAata=t<0;s.hands=s.hands.map((h,p)=>h.concat(s.rest[p]));s.rest=blank(s.n);
+ if(t<0){startPlay(s);s.msg='Nobody took Aata: no trump this game (first to 57 wins)';return}
+ s.phase='challenge';s.cturn=(s.decl+1)%s.n;s.cn=0;s.mult=1;s.msg=nm0(s.decl)+' declared Aata '+S[t];autoChallenge(s)}
+function cval(s,h){return h.reduce((a,c)=>a+((c.s===s.trump?PA:PO)[c.r]||0),0)}
+function challenge(s,p,yes){if(s.phase!=='challenge'||s.cturn!==p||p%2===s.decl%2)return;
+ if(yes){s.mult=2;s.msg=nm0(p)+' called ADDU! Points are doubled';startPlay(s);return}
+ s.cn++;if(s.cn>=s.n/2){startPlay(s);s.msg='No Addu. Aata is '+S[s.trump]}else s.cturn=(s.cturn+2)%s.n}
+function autoChallenge(s){while(s.phase==='challenge'&&s.seats[s.cturn]===null){const p=s.cturn;challenge(s,p,cval(s,s.hands[p])>=6.25*s.hands[p].length*(s.n===8?1.5:1))}}
+function bid(s,p,t){if(s.phase!=='declare'||s.dturn!==p)return;
+ if(t>=0){s.decl=p;fin(s,t);return}
+ s.passes++;s.dturn=(p+1)%s.n;s.msg=nm0(p)+' passed';
+ if(s.passes>=s.n)deal(s,1)}
+function autoBids(s){while(s.phase==='declare'&&s.seats[s.dturn]===null){const p=s.dturn,hh=s.hands[p],t=botPick(hh);bid(s,p,botVal(hh,t)>=6.5*hh.length||(s.redeals>=20&&s.passes===s.n-1)?t:-1)}}
+function deal(s,re){const n=s.n,R=(n===6?['6']:[]).concat(['7','8','9','10','J','Q','K','A']),d=[];
+ S.forEach((_,x)=>R.forEach(r=>d.push({s:x,r})));
+ for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}
+ const per=d.length/n,k=n===6?3:4,ix=[...Array(n).keys()];
+ s.hands=ix.map(p=>d.slice(p*k,p*k+k));s.rest=ix.map(p=>d.slice(n*k+p*(per-k),n*k+(p+1)*(per-k)));
+ s.first=(s.dealer+1)%n;s.decl=s.first;s.dturn=s.first;s.passes=0;s.noAata=false;s.mult=1;
+ s.trump=-1;s.trick=[];s.score=[0,0];s.tw=[0,0];s.result=null;s.phase='declare';s.redeals=re?(s.redeals||0)+1:0;s.msg=re?'Everyone passed: cards redealt':'';autoBids(s)}
+function play(s,p,c){if(s.phase!=='play'||s.turn!==p||s.trick.length>=s.n)return;
+ if(!legal(s.hands[p],s.trick).some(x=>eq(x,c)))return;
+ s.hands[p]=s.hands[p].filter(x=>!eq(x,c));s.trick.push({p,c});s.turn=(p+1)%s.n;s.msg=''}
+function resolve(s){if(s.trick.length<s.n)return;const w=best(s.trick).p,last=s.hands.every(h=>!h.length);
+ let pt=s.trick.reduce((a,t)=>a+pts(t.c),0);if(last)pt+=5;
+ s.score[w%2]+=pt;s.tw[w%2]++;s.trick=[];s.turn=w;s.msg=nm0(w)+' won +'+pt+(last?' (last trick +5)':'');
+ const na=1-s.decl%2;let win=-1;
+ if(s.noAata){if(s.score[0]>=57)win=0;else if(s.score[1]>=57)win=1;else if(last)win=s.score[0]>s.score[1]?0:s.score[1]>s.score[0]?1:s.first%2}
+ else if(s.score[na]>=47)win=na;else if(last)win=s.decl%2;
+ if(win>=0){const stake=stakeOf(s,s.decl)*s.mult;s.owed+=win%2===1?stake:-stake;s.played++;
+  let nd=s.dealer;for(let k=1;k<=s.n;k++){const q=(s.dealer+k)%s.n;if(q%2===1-win){nd=q;break}}
+  s.dealer=nd;s.phase='done';s.result={win,na,noAata:s.noAata,early:!last,stake,mult:s.mult};s.hands=blank(s.n)}}
+function commit(s){s.v=G.v+1;G=s;push();render()}
+function handle(m,a){const s=clone(G),me=s.seats.indexOf(a);
+ if(m.t==='sit'){if(me<0&&s.seats[m.i]===null){s.seats[m.i]=a;s.names[a]=clean(m.n)||'Player'}}
+ else if(m.t==='leave'){if(me>=0)s.seats[me]=null}
+ else if(m.t==='declare'){if(me>=0&&m.s>=-1&&m.s<4){bid(s,me,m.s);autoBids(s)}}
+ else if(m.t==='addu'){if(me>=0){challenge(s,me,!!m.y);autoChallenge(s)}}
+ else if(m.t==='play'){if(me>=0)play(s,me,m.c)}
+ else if(m.t==='target'){if(a==='host'&&(s.phase==='lobby'||s.phase==='done'&&s.played>=s.target))s.target=Math.max(1,Math.min(50,+m.n||5))}
+ else if(m.t==='deal'){if(me>=0&&(s.phase==='lobby'||s.phase==='done')){if(s.phase==='lobby')s.dealer=Math.floor(Math.random()*s.n);
+  if(s.phase==='done'&&s.played>=s.target){s.owed=0;s.played=0}deal(s)}}
+ commit(s)}
+const act=m=>mode==='client'?(conn&&conn.open&&conn.send(m)):handle(m,uid);
+function view(u){const s=clone(G);s.hands=s.hands.map((h,p)=>s.seats[p]===u?h:h.map(()=>({s:-1,r:'?'})));s.rest=blank(s.n);return s}
+function push(){Object.keys(conns).forEach(k=>{try{conns[k].send(view(k))}catch(e){}})}
+function schedule(){clearTimeout(timer);if(mode==='client'||!mode||G.phase!=='play')return;const ver=G.v;let f=null,ms=0;
+ if(G.trick.length===G.n){f=()=>{const s=clone(G);resolve(s);commit(s)};ms=1500}
+ else if(G.seats[G.turn]===null){const p=G.turn;f=()=>{const s=clone(G);play(s,p,ai(p));commit(s)};ms=850}
+ if(f)timer=setTimeout(()=>{if(G.v===ver)f()},ms)}
+function cardEl(c,cls=''){const d=document.createElement('div');
+ d.className='card '+cls+(c.s===1||c.s===2?' red':'')+(isT(c)?' t':'');
+ d.innerHTML='<b>'+c.r+'</b><i>'+S[c.s]+'</i>';return d}
+const myOwed=me=>me%2===0?G.owed:-G.owed;
+function render(){
+ if(!mode){home();return}
+ const n=G.n,me=G.seats.indexOf(uid),v=me<0?0:me,at=G.decl%2,na=1-at,T=G.phase!=='declare'&&G.phase!=='lobby',NA=G.noAata;
+ $('trump').textContent=!T?'–':NA?'None':S[G.trump];
+ const tv=me<0?0:me%2,tN=t=>tn(t,tv),mo=me<0?0:myOwed(me),money=me<0?'':mo>0?' · You owe '+mo:mo<0?' · They owe '+(-mo):' · Even';
+ $('team').innerHTML=me<0?'Watching':T?tN(tv)+(NA?' · No Aata':tv===at?' · Aata':' · Non-Aata')+' · Dealer: '+nm(G.dealer)+(G.mult>1?' · ADDU ×2':''):'Table '+code+' · '+n+' players';
+ $('sc').innerHTML=(T&&NA?tN(0)+' '+G.score[0]+' · '+tN(1)+' '+G.score[1]+' (57)':T?tN(na)+' '+G.score[na]+' / 47':'')+'<br>Game '+Math.min(G.played+(G.phase==='done'?0:1),G.target)+'/'+G.target+money;
+ const sb=$('seats');sb.innerHTML='';
+ for(let k=1;k<n;k++){const p=(v+k)%n,e=document.createElement('div');
+  e.className='seat '+(p%2===v%2?'tm':'op')+((G.phase==='play'&&G.turn===p&&G.trick.length<n)||(G.phase==='declare'&&G.dturn===p)||(G.phase==='challenge'&&G.cturn===p)?' on':'');
+  e.innerHTML='<b>'+nm(p)+(T&&!NA&&p===G.decl?' ★':'')+(p===G.dealer?' (D)':'')+'</b><div class="bk">'+'<i></i>'.repeat(G.hands[p].length)+'</div>';sb.appendChild(e)}
+ const tr=$('tr');tr.innerHTML='';const w=G.trick.length===n?best(G.trick).p:-1;
+ G.trick.forEach(t=>{const s=document.createElement('div');s.className='tc';
+  s.appendChild(cardEl(t.c,'mini'+(t.p===w?' win':'')));const l=document.createElement('span');l.className=t.p%2===v%2?'cT':'cO';l.textContent=nm(t.p);s.appendChild(l);tr.appendChild(s)});
+ const mine=me>=0&&G.phase==='play'&&G.turn===me&&G.trick.length<n;
+ $('msg').textContent=G.phase==='challenge'?(G.cturn===me?'':nm(G.cturn)+' is deciding on Addu')+(G.msg?' ('+G.msg+')':''):G.phase==='declare'?(G.dturn===me?'':nm(G.dturn)+' is deciding on Aata')+(G.msg?' ('+G.msg+')':''):mine?'Your turn: tap a raised card':G.msg||'';
+ const h=$('hand');h.innerHTML='';
+ if(me>=0){const L=mine?legal(G.hands[me],G.trick):[];
+  G.hands[me].slice().sort((a,b)=>(isT(b)-isT(a))||(a.s-b.s)||(NO.indexOf(b.r)-NO.indexOf(a.r))).forEach(c=>{
+   const ok=L.some(x=>eq(x,c)),d=cardEl(c,mine?(ok?'ok':'no'):'');
+   if(ok)d.onclick=()=>act({t:'play',c});h.appendChild(d)})}
+ overlay(me);schedule()}
+function show(html,pick){$('ovc').innerHTML=html;$('ov').className=pick?'pick':'';$('ov').style.display='flex'}
+function overlay(me){
+ if(G.phase==='declare'&&me>=0&&me===G.dturn){
+  show('<h2>Take Aata?</h2><p>Stake if you take it: '+stakeOf(G,me)+'. Your first cards are shown. Pick a trump suit, or pass to the next player. If all players pass, the cards are redealt.</p><div class="row">'+S.map((x,i)=>'<button class="'+(i===1||i===2?'r':'')+'" data-s="'+i+'">'+x+'</button>').join('')+'</div><div class="row"><button class="go" data-s="-1">Pass</button></div>',true);
+  document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>act({t:'declare',s:+b.dataset.s}));return}
+ if(G.phase==='challenge'&&me>=0&&me===G.cturn){
+  show('<h2>Call Addu?</h2><p>'+nm(G.decl)+' took Aata '+S[G.trump]+'. Stake is '+stakeOf(G,G.decl)+'. Only the team against Aata can call Addu: you would be challenging '+tn(G.decl%2,me%2)+'. Doubles the stake.</p><div class="row"><button class="go" data-y="1">Addu! (×2)</button><button class="go" data-y="0" style="background:#ddd">Pass</button></div>',true);
+  document.querySelectorAll('[data-y]').forEach(b=>b.onclick=()=>act({t:'addu',y:+b.dataset.y}));return}
+ if(G.phase==='done'){const r=G.result,v=me<0?0:me,won=r.win===v%2,over=G.played>=G.target,mo=myOwed(v),
+   who=tn(r.win,v%2)+(r.noAata?'':r.win===r.na?' (Non-Aata)':' (Aata)'),
+   tot=mo>0?tn(v%2,v%2)+' owe '+mo+' in total.':mo<0?tn(1-v%2,v%2)+' owe '+(-mo)+' in total.':'The money is even.',
+   verdict=mo===0?'Nobody is in debt: draw.':me<0?'Team '+(G.owed>0?'A':'B')+' is in debt and loses.':mo>0?'Your team is in debt and loses.':'The other team is in debt. Your team wins!';
+  show('<h2>'+(over?'Match over':me<0?'Game over':won?'Your team wins!':'Your team loses')+'</h2><p>'+who+' win'+(r.early?' (ended early)':'')+'.'+(r.noAata?'':' Non-Aata '+G.score[r.na]+'/47.')+'</p><p>The losing team owes '+r.stake+(r.mult>1?' (Addu ×2)':'')+'. '+tot+'</p>'+
+   (over?'<p><b>'+verdict+'</b></p>':'<p>Next dealer: '+nm(G.dealer)+'</p>')+
+   (over&&mode!=='client'?tgt():'')+(me>=0?'<div class="row"><button class="go" id="nx">'+(over?'New match':'New game')+'</button></div>':''));
+  hookT();const nx=$('nx');if(nx)nx.onclick=()=>act({t:'deal'});return}
+ if(G.phase==='lobby'||showSeats){
+  show('<h2>Table '+code+'</h2><p>'+G.n+' players, two teams (alternate seats). Empty seats play as bots.</p>'+Array.from({length:G.n},(_,i)=>{const u=G.seats[i];
+   return '<div class="sl"><span class="'+(i%2===(G.seats.indexOf(uid)<0?0:G.seats.indexOf(uid)%2)?'cT':'cO')+'">Seat '+(i+1)+' ('+(i%2===(G.seats.indexOf(uid)<0?0:G.seats.indexOf(uid)%2)?'your team':'other team')+'): '+(u===null?'empty':u===uid?'you':G.names[u]||'player')+'</span>'+
+   (u===uid?'<button data-l>Leave seat</button>':u===null&&G.seats.indexOf(uid)<0?'<button data-j="'+i+'">Sit</button>':'')+'</div>'}).join('')+
+   (mode!=='client'?tgt():'<p>Games to play: '+G.target+'</p>')+'<div class="row">'+(G.phase==='lobby'&&G.seats.indexOf(uid)>=0?'<button class="go" id="st">Start</button>':'<button class="go" id="cl">'+(G.phase==='lobby'?'Wait':'Close')+'</button>')+'</div>'+
+   (mode==='solo'?'':'<div class="row"><button class="go" id="sh" style="font-size:14px">Share invite link</button></div>')+
+   '<div class="row"><button class="go" id="lv" style="font-size:14px;background:#ddd">Leave table</button></div>');
+  hookT();document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>act({t:'sit',i:+b.dataset.j,n:myName()}));
+  document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>act({t:'leave'}));
+  const st=$('st'),cl=$('cl'),sh=$('sh');
+  if(st)st.onclick=()=>{showSeats=false;act({t:'deal'})};if(cl)cl.onclick=()=>{showSeats=false;render()};
+  if(sh)sh.onclick=()=>{const u=location.href.split('#')[0]+'#'+code;navigator.share?navigator.share({title:'Aata Addu',text:'Join my table '+code,url:u}).catch(()=>{}):navigator.clipboard&&navigator.clipboard.writeText(u).then(()=>{sh.textContent='Link copied'})};
+  $('lv').onclick=leave;return}
+ $('ov').style.display='none'}
+function tgt(){return '<div class="sl" style="justify-content:center;gap:14px">Games to play <button data-tg="-1">−</button><b>'+G.target+'</b><button data-tg="1">+</button></div>'}
+function hookT(){document.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>act({t:'target',n:G.target+ +b.dataset.tg}))}
+function myName(){return clean(($('nmi')&&$('nmi').value.trim())||localStorage.getItem('aname'))||'Player'}
+function setPn(x){pn=x;[4,6,8].forEach(k=>{$('pn'+k).className=k===x?'go':''})}
+function home(){$('trump').textContent='–';$('team').textContent='';$('sc').textContent='';
+ ['seats','tr','hand'].forEach(i=>$(i).innerHTML='');$('msg').textContent='';
+ let n='';try{n=localStorage.getItem('aname')||''}catch(e){}
+ show('<h2>Aata Addu</h2><input id="nmi" maxlength="14" placeholder="Your name" value="'+n.replace(/"/g,'')+'">'+
+  '<p>How many players?</p><div class="row" style="margin-top:4px">'+[4,6,8].map(k=>'<button id="pn'+k+'" style="font-size:17px;padding:8px 18px">'+k+'</button>').join('')+'</div>'+
+  '<div class="row"><button class="go" id="cr">Create table</button><button class="go" id="so">Play bots</button></div>'+
+  '<input id="cd" maxlength="4" placeholder="Table code" value="'+(location.hash.slice(1)||'').toUpperCase().slice(0,4)+'"><div class="row"><button class="go" id="jn">Join table</button></div><p id="er" style="color:var(--gold)">'+err+'</p>');
+ setPn(pn);[4,6,8].forEach(k=>$('pn'+k).onclick=()=>setPn(k));
+ $('so').onclick=()=>begin('solo');$('cr').onclick=()=>begin('host');$('jn').onclick=()=>begin('client',$('cd').value.trim().toUpperCase())}
+function begin(m,c){const n=myName();try{localStorage.setItem('aname',n)}catch(e){}
+ err='';G=INIT(pn);showSeats=true;
+ if(m==='solo'){mode='solo';uid='host';code='solo';G.seats[0]='host';G.names.host=n;render();return}
+ if(typeof Peer==='undefined'){err='Online play needs an internet connection.';render();return}
+ if(m==='host'){mkHost(n,0);return}
+ if(!/^[A-Z0-9]{4}$/.test(c||'')){err='Enter the 4-letter table code.';render();return}
+ code=c;peer=new Peer();
+ const fail=t=>{err=t;leave(true)};
+ const to=setTimeout(()=>fail('Table not found.'),9000);
+ peer.on('error',()=>{clearTimeout(to);fail('Table not found.')});
+ peer.on('open',id=>{uid=id;conn=peer.connect('aata-'+c,{reliable:true});
+  conn.on('open',()=>{clearTimeout(to);mode='client';conn.send({t:'sit',i:-1,n});render()});
+  conn.on('data',s=>{G=s;if(G.seats.indexOf(uid)<0&&G.phase!=='lobby'&&!G.joined){}render()});
+  conn.on('close',()=>{if(mode==='client')fail('The host left the table.')})})}
+function mkHost(n,tries){code=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
+ peer=new Peer('aata-'+code);
+ peer.on('error',e=>{if(e.type==='unavailable-id'&&tries<5)mkHost(n,tries+1);else{err='Could not create a table.';leave(true)}});
+ peer.on('open',id=>{mode='host';uid='host';G.seats[0]='host';G.names.host=n;render()});
+ peer.on('connection',c=>{c.on('open',()=>{conns[c.peer]=c;c.send(view(c.peer))});
+  c.on('data',m=>{if(m&&m.t==='sit'&&m.i<0){const s=clone(G);s.names[c.peer]=clean(m.n)||'Player';commit(s);return}handle(m,c.peer)});
+  c.on('close',()=>{delete conns[c.peer];const i=G.seats.indexOf(c.peer);if(i>=0){const s=clone(G);s.seats[i]=null;commit(s)}})})}
+function leave(keepErr){clearTimeout(timer);try{peer&&peer.destroy()}catch(e){}peer=conn=null;conns={};mode=null;G=INIT();if(keepErr!==true)err='';render()}
+$('mb').onclick=()=>{if(mode){showSeats=true;render()}};
+render();
+</script></body></html>
